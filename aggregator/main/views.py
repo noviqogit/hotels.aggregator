@@ -1,3 +1,13 @@
-from django.shortcuts import render
+from rest_framework import generics
+from .models import Clients
+from .serializers import ClientsSerializer
 
-# Create your views here.
+
+class ClientsList(generics.ListCreateAPIView):
+    queryset = Clients.objects.all()
+    serializer_class = ClientsSerializer
+
+
+class ClientDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Clients.objects.all()
+    serializer_class = ClientsSerializer

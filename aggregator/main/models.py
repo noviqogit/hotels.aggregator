@@ -21,7 +21,7 @@ class Service(models.Model):
 
 class Rooms(models.Model):
     room_id = models.IntegerField()
-    room_name = models.CharField()
+    room_name = models.CharField(blank=True, default='')
     hotel_id = models.ForeignKey(Hotels, on_delete=models.CASCADE)
 
 
@@ -32,7 +32,7 @@ class Devices(models.Model):
 
 class Clients(models.Model):
     client_id = models.IntegerField()
-    date_start = models.DateTimeField()
+    date_start = models.DateTimeField(auto_now_add=True)
     date_end = models.DateTimeField()
     room_id = models.ForeignKey(Rooms, null=True, on_delete=models.SET_NULL)
 
@@ -40,8 +40,11 @@ class Clients(models.Model):
 class Order(models.Model):
     order_id = models.IntegerField()
     client_id = models.ForeignKey(Clients, on_delete=models.CASCADE)
-    create_at = models.DateTimeField()
-    update_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField()
+
+    class Meta:
+        ordering = ['created_at']
 
 
 class OrderInfo(models.Model):
