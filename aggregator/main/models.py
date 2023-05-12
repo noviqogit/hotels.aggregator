@@ -1,4 +1,7 @@
 from django.db import models
+import os
+import jwt
+from datetime import datetime, timedelta
 
 
 class Cities(models.Model):
@@ -12,7 +15,7 @@ class Hotels(models.Model):
     city_id = models.ForeignKey(Cities, on_delete=models.CASCADE)
 
 
-class Service(models.Model):
+class Services(models.Model):
     service_id = models.IntegerField()
     service_name = models.CharField()
     service_price = models.IntegerField()
@@ -29,6 +32,23 @@ class Devices(models.Model):
     device_id = models.IntegerField()
     room_id = models.ForeignKey(Rooms, null=True, on_delete=models.SET_NULL)
 
+    USERNAME_FIELD = 'device_id'
+    REQUIRED_FIELDS = ['room_id']
+
+    @property
+    def token(self):
+        return self._generate_jwt_token()
+
+    def _generate_jwt_token(self):
+        dt = datetime.now() + timedelta(days=1)
+
+        token = jwt.encode({
+            'id': self.device_id,
+            'exp': int(dt.strftime('%s'))
+        }, os.getenv('SECRET_KEY'), algorithm='HS256')
+
+        return jwt.decode(token, algorithms=['HS256', ])
+
 
 class Clients(models.Model):
     client_id = models.IntegerField()
@@ -37,7 +57,7 @@ class Clients(models.Model):
     room_id = models.ForeignKey(Rooms, null=True, on_delete=models.SET_NULL)
 
 
-class Order(models.Model):
+class Orders(models.Model):
     order_id = models.IntegerField()
     client_id = models.ForeignKey(Clients, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -48,5 +68,5 @@ class Order(models.Model):
 
 
 class OrderInfo(models.Model):
-    order_id = models.ForeignKey(Order, on_delete=models.CASCADE)
-    service_id = models.ForeignKey(Service, null=True, on_delete=models.SET_NULL)
+    order_id = models.ForeignKey(Orders, on_delete=models.CASCADE)
+    service_id = models.ForeignKey(Services, null=True, on_delete=models.SET_NULL)
