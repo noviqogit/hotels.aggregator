@@ -28,10 +28,15 @@ class RoomsSerializer(serializers.ModelSerializer):
 
 
 class DevicesSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(max_length=255, read_only=True)
+
     class Meta:
         model = Devices
         fields = ('device_id',
                   'room_id')
+
+    def create(self, validated_data):
+        return Devices.objects.create_user(**validated_data)
 
 
 class ServicesSerializer(serializers.ModelSerializer):
